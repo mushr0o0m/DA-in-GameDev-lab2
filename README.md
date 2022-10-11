@@ -187,156 +187,91 @@ public class Data : MonoBehaviour
 ## Задание 2
 ### Реализовать запись в Google-таблицу набора данных, полученных с помощью линейной регрессии из лабораторной работы № 1.
 
-1.Произвести подготовку данных для работы с алгоритмом линейной регрессии. 10 видов данных были установлены случайным образом, и данные находились в линейной зависимости. Данные преобразуются в формат массива, чтобы их можно было вычислить напрямую при использовании умножения и сложения.
+- Скриншоты результаты работы модели линейной регрессии и отображения их в Google-таблице
+
+![](https://github.com/mushr0o0m/DA-in-GameDev-lab2/blob/main/img/2-1-1.png)
+![](https://github.com/mushr0o0m/DA-in-GameDev-lab2/blob/main/img/2-1-2.png)
 
 ```py
 
-In [ ]:
-#Import the required modules, numpy for calculation, and Matplotlib for drawing
 import numpy as np
+import gspread
 import matplotlib.pyplot as plt
-#This code is for jupyter Notebook only
-%matplotlib inline
 
-# define data, and change list to array
-x = [3,21,22,34,54,34,55,67,89,99]
+gc = gspread.service_account(filename='unitydatasciense-365213-b41b7798cdd7.json')
+sh = gc.open("UnitySheet")
+
+x = [3, 21, 22, 34, 54, 34, 55, 67, 89, 99]
 x = np.array(x)
-y = [2,22,24,65,79,82,55,130,150,199]
+y = [2, 22, 24, 65, 79, 82, 55, 130, 150, 199]
 y = np.array(y)
 
-#Show the effect of a scatter plot
-plt.scatter(x,y)
+plt.scatter(x, y)
 
-```
-
-2.Определите связанные функции. Функция модели: определяет модель линейной регрессии wx+b. Функция потерь: функция потерь среднеквадратичной ошибки. Функция оптимизации: метод градиентного спуска для нахождения частных производных w и b.
-
-```py
-
-In [ ]:
-#The basic linear regression model is wx+ b, and since this is a two-dimensional space, the model is ax+ b
 
 def model(a, b, x):
-    return a*x + b
+    return a * x + b
 
-#Tahe most commonly used loss function of linear regression model is the loss function of mean variance difference
+
 def loss_function(a, b, x, y):
     num = len(x)
-    prediction=model(a,b,x)
-    return (0.5/num) * (np.square(prediction-y)).sum()
+    prediction = model(a, b, x)
+    return (0.5 / num) * (np.square(prediction - y)).sum()
 
-#The optimization function mainly USES partial derivatives to update two parameters a and b
-def optimize(a,b,x,y):
+
+def optimize(a, b, x, y):
     num = len(x)
-    prediction = model(a,b,x)
-    #Update the values of A and B by finding the partial derivatives of the loss function on a and b
-    da = (1.0/num) * ((prediction -y)*x).sum()
-    db = (1.0/num) * ((prediction -y).sum())
-    a = a - Lr*da
-    b = b - Lr*db
+    prediction = model(a, b, x)
+    da = (1.0 / num) * ((prediction - y) * x).sum()
+    db = (1.0 / num) * ((prediction - y).sum())
+    a = a - Lr * da
+    b = b - Lr * db
     return a, b
 
-#iterated function, return a and b
-def iterate(a,b,x,y,times):
+
+def iterate(a, b, x, y, times):
     for i in range(times):
-        a,b = optimize(a,b,x,y)
-    return a,b
-    
-```
+        a, b = optimize(a, b, x, y)
+    return a, b
 
-3.Начать итерацию
-Шаг 1 Инициализация и модель итеративной оптимизации
-```py
 
-In [ ]:
-#Initialize parameters and display
 a = np.random.rand(1)
 print(a)
 b = np.random.rand(1)
 print(b)
+sh.sheet1.update('A1', str(1))
+sh.sheet1.update('B1', str(a)[1:-1])
+sh.sheet1.update('C1', str(b)[1:-1])
 Lr = 0.000001
 
-#For the first iteration, the parameter values, losses, and visualization after the iteration are displayed
-a,b = iterate(a,b,x,y,1)
-prediction=model(a,b,x)
+for i in range(2, 11):
+    a, b = iterate(a, b, x, y, i)
+    prediction = model(a, b, x)
+    loss = loss_function(a, b, x, y)
+    print(a, b, loss)
+    sh.sheet1.update(('A' + str(i)), str(i))
+    sh.sheet1.update(('B' + str(i)), str(a)[1:-1])
+    sh.sheet1.update(('C' + str(i)), str(b)[1:-1])
+    sh.sheet1.update(('D' + str(i)), str(loss))
+    plt.scatter(x, y)
+    plt.plot(x, prediction)
+
+a, b = iterate(a, b, x, y, 10000)
+prediction = model(a, b, x)
 loss = loss_function(a, b, x, y)
-print(a,b,loss)
-plt.scatter(x,y)
-plt.plot(x,prediction)
+print(a, b, loss)
+sh.sheet1.update('A11', str(10000))
+sh.sheet1.update('B11', str(a)[1:-1])
+sh.sheet1.update('C11', str(b)[1:-1])
+sh.sheet1.update('D11', str(loss))
+plt.scatter(x, y)
+plt.plot(x, prediction)
+
+plt.show()
+
 
 ```
 
-
-
-Шаг 2 На второй итерации отображаются значения параметров, значения потерь и эффекты визуализации после итерации
-
-```py
-
-In [ ]:
-a,b = iterate(a,b,x,y,2)
-prediction=model(a,b,x)
-loss = loss_function(a, b, x, y)
-print(a,b,loss)
-plt.scatter(x,y)
-plt.plot(x,prediction)
-
-```
-
-Шаг 3 Третья итерация показывает значения параметров, значения потерь и визуализацию после итерации
-
-```py
-
-In [ ]:
-a,b = iterate(a,b,x,y,3)
-prediction=model(a,b,x)
-loss = loss_function(a, b, x, y)
-print(a,b,loss)
-plt.scatter(x,y)
-plt.plot(x,prediction)
-
-```
-
-Шаг 4 На четвертой итерации отображаются значения параметров, значения потерь и эффекты визуализации
-
-```py
-
-In [ ]:
-a,b = iterate(a,b,x,y,4)
-prediction=model(a,b,x)
-loss = loss_function(a, b, x, y)
-print(a,b,loss)
-plt.scatter(x,y)
-plt.plot(x,prediction)
-
-```
-
-Шаг 5 Пятая итерация показывает значение параметра, значение потерь и эффект визуализации после итерации
-
-```py
-
-In [ ]:
-a,b = iterate(a,b,x,y,5)
-prediction=model(a,b,x)
-loss = loss_function(a, b, x, y)
-print(a,b,loss)
-plt.scatter(x,y)
-plt.plot(x,prediction)
-
-```
-
-Шаг 6 10000-я итерация, показывающая значения параметров, потери и визуализацию после итерации
-
-```py
-
-In [ ]:
-a,b = iterate(a,b,x,y,10000)
-prediction=model(a,b,x)
-loss = loss_function(a, b, x, y)
-print(a,b,loss)
-plt.scatter(x,y)
-plt.plot(x,prediction)
-
-```
 
 ## Задание 3
 ### Изучить код на Python и ответить на вопросы:
