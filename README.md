@@ -288,9 +288,108 @@ plt.show()
   
 ![](https://github.com/mushr0o0m/DA-in-GameDev-lab2/blob/main/img/3-1-3.png)
 
+- Весь измененный скрипт
+
+```cs
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Networking;
+using SimpleJSON;
+
+
+public class DataLinearRegression : MonoBehaviour
+{
+    [SerializeField] private AudioClip goodSpeak;
+    [SerializeField] private AudioClip normalSpeak;
+    [SerializeField] private AudioClip badSpeak;
+
+    private AudioSource selectAudio;
+    private Dictionary<string, float> dataSet = new Dictionary<string, float>();
+    private bool statusStart = false;
+    private int counter = 1;
+
+    private void Start()
+    {
+        StartCoroutine(GoogleSheet());
+    }
+
+    private void Update()
+    {
+        if (!statusStart && counter != dataSet.Count && dataSet["Mon_" + counter.ToString()] <= 1000)
+        {
+            StartCoroutine(PlaySelectAudioGood());
+            Debug.Log(dataSet["Mon_" + counter.ToString()]);
+        }
+
+        if (!statusStart && counter != dataSet.Count 
+            && dataSet["Mon_" + counter.ToString()] > 1000 && dataSet["Mon_" + counter.ToString()] < 1500)
+        {
+            StartCoroutine(PlaySelectAudioNormal());
+            Debug.Log(dataSet["Mon_" + counter.ToString()]);
+        }
+
+        if (!statusStart && counter != dataSet.Count && dataSet["Mon_" + counter.ToString()] >= 1500)
+        {
+            StartCoroutine(PlaySelectAudioBad());
+            Debug.Log(dataSet["Mon_" + counter.ToString()]);
+        }
+    }
+
+    private IEnumerator GoogleSheet()
+    {
+        UnityWebRequest curentResp = UnityWebRequest.Get("https://sheets.googleapis.com/v4/spreadsheets/1BunomDF4_9-10cpm3dKWcXucEfIr3qEa6jKYAPDI1qU/values/Лист1?key=AIzaSyAW_ZU0srE6ifkI2uJcReML4CQiDesSfEA");
+        yield return curentResp.SendWebRequest();
+        var rawResp = curentResp.downloadHandler.text;
+        var rawJson = JSON.Parse(rawResp);
+        foreach (var itemRawJson in rawJson["values"])
+        {
+            var parseJson = JSON.Parse(itemRawJson.ToString());
+            var selectRow = parseJson[0].AsStringList;
+            dataSet.Add(("Mon_" + selectRow[0]), float.Parse(selectRow[3]));
+        }
+    }
+
+    private IEnumerator PlaySelectAudioGood()
+    {
+        statusStart = true;
+        selectAudio = GetComponent<AudioSource>();
+        selectAudio.clip = goodSpeak;
+        selectAudio.Play();
+        yield return new WaitForSeconds(3);
+        statusStart = false;
+        counter++;
+    }
+
+    private IEnumerator PlaySelectAudioBad()
+    {
+        statusStart = true;
+        selectAudio = GetComponent<AudioSource>();
+        selectAudio.clip = badSpeak;
+        selectAudio.Play();
+        yield return new WaitForSeconds(4);
+        statusStart = false;
+        counter++;
+    }
+
+    private IEnumerator PlaySelectAudioNormal()
+    {
+        statusStart = true;
+        selectAudio = GetComponent<AudioSource>();
+        selectAudio.clip = normalSpeak;
+        selectAudio.Play();
+        yield return new WaitForSeconds(3);
+        statusStart = false;
+        counter++;
+    }
+
+}
+
+```
+
 ## Выводы
 
-В первую очередь, я получил опыт работы с github, также попрактиковался в чтении и изучении кода на python, на платформе google.colab. При ответе на второй вопрос задания 3 я более подробно изучил линейную регрессию и функцию потерь методом наименьших квадратов.
+В этой лабораторной работе я узнал как автоматизировать выгрузку данных из python в Google-таблицы с помощью console cloud google, также увидел как изпользовать API на практике и узнал как экспортировать данные из Google-таблиц в Unity и взаимодействовать с ними с помощью словоря. 
 
 ## Powered by
 
