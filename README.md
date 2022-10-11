@@ -39,21 +39,148 @@
 Ознакомиться с основными операторами зыка Python на примере реализации линейной регрессии.
 
 ## Задание 1
-### Написать программы Hello World на Python и Unity. 
+### Реализовать совместную работу и передачу данных в связке Python - Google-Sheets – Unity. 
 
-#### Python
-- Скриншот с демонстрацией сохранения документа google.colab
+- Скриншоты подключения API для работы с google sheets и google drive в console cloud google
 
-![Скриншот с демонстрацией сохранения документа google.colab](https://github.com/mushr0o0m/DA-in-GameDev-lab1-description-and-attachments/blob/main/img/Task-1/1.2-py.png)
+![]()
+![]()
 
-- Скриншот с запуском программы
+- Скриншоты реализации и запись данных из скрипта на python в google-таблицу
 
-![Скриншот с запуском программы](https://github.com/mushr0o0m/DA-in-GameDev-lab1-description-and-attachments/blob/main/img/Task-1/1.1-py.png)
+![]()
+![]()
 
-#### Unity
-- Скриншот с запуском программы
+```py
 
-![Скриншот с запуском программы](https://github.com/mushr0o0m/DA-in-GameDev-lab1-description-and-attachments/blob/main/img/Task-1/1.1-unity.png)
+import gspread
+import numpy as np
+gc = gspread.service_account(filename='unitydatasciense-365213-b41b7798cdd7.json')
+sh = gc.open("UnitySheet")
+price = np.random.randint(2000, 10000, 11)
+mon = list(range(1,11))
+i = 0
+while i <= len(mon):
+    i += 1
+    if i == 0:
+        continue
+    else:
+        tempInf = ((price[i-1]-price[i-2])/price[i-2])*100
+        tempInf = str(tempInf)
+        tempInf = tempInf.replace('.',',')
+        sh.sheet1.update(('A' + str(i)), str(i))
+        sh.sheet1.update(('B' + str(i)), str(price[i-1]))
+        sh.sheet1.update(('C' + str(i)), str(tempInf))
+        print(tempInf)
+
+```
+
+- Скриншоты проекта на Unity, который получают данные из google-таблицы, в которую были записаны данные в предыдущем пункте
+
+![]()
+
+- Скриншоты проекта на Unity, который получают данные из google-таблицы, в которую были записаны данные в предыдущем пункте
+
+![]()
+
+
+```с#
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Networking;
+using SimpleJSON;
+
+public class Data : MonoBehaviour
+{
+    [SerializeField] private AudioClip goodSpeak;
+    [SerializeField] private AudioClip normalSpeak;
+    [SerializeField] private AudioClip badSpeak;
+
+    private AudioSource selectAudio;
+    private Dictionary<string, float> dataSet = new Dictionary<string, float>();
+    private bool statusStart = false;
+    private int counter = 1;
+
+    void Start()
+    {
+        StartCoroutine(GoogleSheet());
+    }
+
+    void Update()
+    {
+        if(dataSet["Mon_" + counter.ToString()] <= 10 && !statusStart && counter != dataSet.Count)
+        {
+            StartCoroutine(PlaySelectAudioGood());
+            Debug.Log(dataSet["Mon_" + counter.ToString()]);
+        }
+
+        if (dataSet["Mon_" + counter.ToString()] > 10 && dataSet["Mon_" + counter.ToString()] < 100
+            && !statusStart && counter != dataSet.Count)
+        {
+            StartCoroutine(PlaySelectAudioNormal());
+            Debug.Log(dataSet["Mon_" + counter.ToString()]);
+        }
+
+        if(dataSet["Mon_" + counter.ToString()] >= 100 && !statusStart && counter != dataSet.Count)
+        {
+            StartCoroutine(PlaySelectAudioBad());
+            Debug.Log(dataSet["Mon_" + counter.ToString()]);
+        }
+    }
+
+    IEnumerator GoogleSheet()
+    {
+        UnityWebRequest curentResp = UnityWebRequest.Get("https://sheets.googleapis.com/v4/spreadsheets/1BunomDF4_9-10cpm3dKWcXucEfIr3qEa6jKYAPDI1qU/values/Лист1?key=AIzaSyAW_ZU0srE6ifkI2uJcReML4CQiDesSfEA");
+        yield return curentResp.SendWebRequest();
+        var rawResp = curentResp.downloadHandler.text;
+        var rawJson = JSON.Parse(rawResp);
+        foreach(var itemRawJson in rawJson["values"])
+        {
+            var parseJson = JSON.Parse(itemRawJson.ToString());
+            var selectRow = parseJson[0].AsStringList;
+            dataSet.Add(("Mon_" + selectRow[0]), float.Parse(selectRow[2]));
+        }
+    }
+
+    IEnumerator PlaySelectAudioGood()
+    {
+        statusStart = true;
+        selectAudio = GetComponent<AudioSource>();
+        selectAudio.clip = goodSpeak;
+        selectAudio.Play();
+        yield return new WaitForSeconds(3);
+        statusStart = false;
+        counter++;
+    }
+
+    IEnumerator PlaySelectAudioBad()
+    {
+        statusStart = true;
+        selectAudio = GetComponent<AudioSource>();
+        selectAudio.clip = badSpeak;
+        selectAudio.Play();
+        yield return new WaitForSeconds(4);
+        statusStart = false;
+        counter++;
+    }
+
+    IEnumerator PlaySelectAudioNormal()
+    {
+        statusStart = true;
+        selectAudio = GetComponent<AudioSource>();
+        selectAudio.clip = normalSpeak;
+        selectAudio.Play();
+        yield return new WaitForSeconds(3);
+        statusStart = false;
+        counter++;
+    }
+
+}
+
+
+```
 
 ## Задание 2
 ### В разделе «ход работы» пошагово выполнить каждый пункт с описанием и примером реализации задачи по теме лабораторной работы.
