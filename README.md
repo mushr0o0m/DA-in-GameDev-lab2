@@ -43,13 +43,13 @@
 
 - Скриншоты подключения API для работы с google sheets и google drive в console cloud google
 
-![]()
-![]()
+![](https://github.com/mushr0o0m/DA-in-GameDev-lab2/blob/main/img/1-1-1.png)
+![](https://github.com/mushr0o0m/DA-in-GameDev-lab2/blob/main/img/1-1-2.png)
 
 - Скриншоты реализации и запись данных из скрипта на python в google-таблицу
 
-![]()
-![]()
+![](https://github.com/mushr0o0m/DA-in-GameDev-lab2/blob/main/img/1-2-1.png)
+![](https://github.com/mushr0o0m/DA-in-GameDev-lab2/blob/main/img/1-2-2.png)
 
 ```py
 
@@ -77,13 +77,13 @@ while i <= len(mon):
 
 - Скриншоты проекта на Unity, который получают данные из google-таблицы, в которую были записаны данные в предыдущем пункте
 
-![]()
+![](https://github.com/mushr0o0m/DA-in-GameDev-lab2/blob/main/img/1-3-1.png)
 
 - Скриншоты функционала на Unity, в котором будет воспризводиться аудио-файл в зависимости от значения данных из таблицы
 
-![]()
-![]()
-![]()
+![](https://github.com/mushr0o0m/DA-in-GameDev-lab2/blob/main/img/1-4-1.png)
+![](https://github.com/mushr0o0m/DA-in-GameDev-lab2/blob/main/img/1-4-2.png)
+![](https://github.com/mushr0o0m/DA-in-GameDev-lab2/blob/main/img/1-4-3.png)
 
 
 ```cs
